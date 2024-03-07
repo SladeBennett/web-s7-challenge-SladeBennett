@@ -88,21 +88,21 @@ Here are some **invalid** payloads (test in Postman!):
 
 **Inside the [index.js](frontend/index.js) module:**
 
-- Wrap the `<App />` element using `BrowserRouter` from React Router.
+-$ Wrap the `<App />` element using `BrowserRouter` from React Router.
 
 **Inside the [App.js](./frontend/components/App.js) module:**
 
-- Inside the `nav`, render two `NavLinks`:
+-$ Inside the `nav`, render two `NavLinks`:
     1. One with text content **Home** that navigates to "/".
     2. One with text content **Order** that navigates to "/order".
 
-- Below the `nav`, render a `Routes` element containing two `Route` elements:
+-$ Below the `nav`, render a `Routes` element containing two `Route` elements:
     1. When the path is "/" it renders `<Home />`.
     2. When the path is "/order" it renders `<Form />`.
 
 **Inside the [Home.js](./frontend/components/Home.js) module:**
 
-- Create a click handler so that clicking on the image navigates the user to "/order".
+-$ Create a click handler so that clicking on the image navigates the user to "/order".
 
 #### 👉 TASK 4 - Create a form to submit pizza orders
 
