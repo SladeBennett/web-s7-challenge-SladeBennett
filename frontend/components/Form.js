@@ -18,13 +18,12 @@ const leSchema = yup.object().shape({
 })
 
 const toppings = [
-  { topping_id: '1', text: 'Pepperoni' },
-  { topping_id: '2', text: 'Green Peppers' },
-  { topping_id: '3', text: 'Pineapple' },
-  { topping_id: '4', text: 'Mushrooms' },
-  { topping_id: '5', text: 'Ham' },
+  { topping_id: '1', text: 'Pepperoni', value: false},
+  { topping_id: '2', text: 'Green Peppers', value: false},
+  { topping_id: '3', text: 'Pineapple', value: false},
+  { topping_id: '4', text: 'Mushrooms', value: false},
+  { topping_id: '5', text: 'Ham', value: false},
 ]
-
 
 const initialValues = () => ({
   fullName: '',
@@ -36,6 +35,8 @@ const initialErrors = () => ({
   size: ''
 })
 
+let toppingsArr = []
+let successText;
 
 export default function Form() {
   const [values, setValues] = useState(initialValues())
@@ -43,15 +44,28 @@ export default function Form() {
   const [enabled, setEnabled] = useState(false)
   const [formSuccess, setFormSuccess] = useState()
   const [formFailure, setFormFailure] = useState()
-
+  
   useEffect(() => {
     leSchema.isValid(values).then(setEnabled)
   }, [values])
 
+  const updateToppings = (topping_id) => {
+    if(!toppingsArr.includes(topping_id)){
+    toppingsArr.push(topping_id)
+    } else if (toppingsArr.includes(topping_id)) {
+      toppingsArr.splice(toppingsArr.indexOf(topping_id), 1)
+    }
+    setValues({ ...values, toppings: toppingsArr})
+  }
+
   const onChange = evt => {
-    let { name, value } = evt.target
-    setValues({ ...values, [name]: value })
-    yup
+    let { name, value, type, checked } = evt.target
+    if (type == 'checkbox') {
+      console.log(checked)
+      updateToppings(name)
+    } else {
+      setValues({ ...values, [name]: value })
+      yup
       .reach(leSchema, name)
       .validate(value)
       .then(() => {
@@ -60,14 +74,28 @@ export default function Form() {
       .catch((err) => {
         setErrors({ ...errors, [name]: err.errors[0] })
       })
+    }
   }
 
   const onSubmit = evt => {
+    let toppingsStr = ''
+    if (toppingsArr.length > 1) {
+      toppingsStr = toppingsArr.length + ' toppings' 
+    } else if (toppingsArr.length == 1) {
+      toppingsStr = toppingsArr.length + ' topping'
+    } else if (toppingsArr.length < 1) {
+      toppingsStr = ' no toppings'
+    }
+
+    successText = `Thank you for your order, ${values.fullName}! Your ${values.size} pizza with ` + toppingsStr + ` is on the way.`
+
     evt.preventDefault()
     setFormSuccess(true)
     setFormFailure(false)
+    toppingsArr = []
+    setValues(initialValues())
   }
-  const successText = `Thank you for your order, ${values.fullName}! Your ${values.size} pizza is on its way.`
+
   return (
     <form onSubmit={onSubmit}>
       <h2>Order Your Pizza</h2>
@@ -100,11 +128,13 @@ export default function Form() {
           return (
             <label key={item.topping_id}>
               <input
+                checked={toppingsArr.includes(item.topping_id)}
                 name={item.topping_id}
                 type="checkbox"
                 onChange={onChange}
               />
-              {item.text}<br />
+              {item.text}
+              <br />
             </label>
           )
         })}
