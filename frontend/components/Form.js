@@ -8,13 +8,12 @@ const validationErrors = {
   sizeIncorrect: 'size must be S or M or L'
 }
 
-// 👇 Here you will create your schema.
 const leSchema = yup.object().shape({
   fullName: yup.string().trim()
     .min(3, validationErrors.fullNameTooShort).max(20, validationErrors.fullNameTooLong),
 
-  size: yup.string().trim()
-    .oneOf(['small', 'medium', 'large'], validationErrors.sizeIncorrect)
+  size: yup.string()
+    .oneOf(['S', 'M', 'L'], validationErrors.sizeIncorrect)
 })
 
 const toppings = [
@@ -46,10 +45,10 @@ export default function Form() {
   const [formFailure, setFormFailure] = useState()
   
   useEffect(() => {
-    leSchema.isValid(values).then(setEnabled)
+    leSchema.isValid(values).then((isValid) => setEnabled(isValid))
   }, [values])
 
-  const updateToppings = (topping_id) => {
+  const updateToppings = (topping_id) => { //map toppins.map(id =>)
     if(!toppingsArr.includes(topping_id)){
     toppingsArr.push(topping_id)
     } else if (toppingsArr.includes(topping_id)) {
@@ -58,11 +57,20 @@ export default function Form() {
     setValues({ ...values, toppings: toppingsArr})
   }
 
+  // const updateToppings = (topping_id) => {
+  //   setValues((prevValues) => {
+  //     const newToppings = prevValues.toppings.map((topping) =>
+  //       topping.topping_id === topping_id ? { ...topping, value: !topping.value }
+  //         : topping
+  //     );
+  //     return { ...prevValues, toppings: newToppings };
+  //   });
+  // };
+
   const onChange = evt => {
-    let { name, value, type, checked } = evt.target
+    let { name, value, type } = evt.target
     if (type == 'checkbox') {
-      console.log(checked)
-      updateToppings(name)
+      updateToppings(name)//after map toppings.text
     } else {
       setValues({ ...values, [name]: value })
       yup
@@ -77,7 +85,9 @@ export default function Form() {
     }
   }
 
+
   const onSubmit = evt => {
+    //update size
     let toppingsStr = ''
     if (toppingsArr.length > 1) {
       toppingsStr = toppingsArr.length + ' toppings' 
@@ -87,7 +97,17 @@ export default function Form() {
       toppingsStr = ' no toppings'
     }
 
-    successText = `Thank you for your order, ${values.fullName}! Your ${values.size} pizza with ` + toppingsStr + ` is on the way.`
+    let leSize = ''
+    if (values.size == 'S') {
+      leSize = 'Small'
+    }
+    if (values.size == 'M') {
+      leSize = 'Medium'
+    }
+    if (values.size == 'L') {
+      leSize = 'Large'
+    }
+    successText = `Thank you for your order, ${values.fullName}! Your ${leSize} pizza with ` + toppingsStr + ` is on the way.`
 
     evt.preventDefault()
     setFormSuccess(true)
@@ -115,9 +135,9 @@ export default function Form() {
           <label htmlFor="size">Size</label><br />
           <select value={values.size} id="size" name="size" onChange={onChange}>
             <option value="">----Choose Size----</option>
-            <option value="small">Small</option>
-            <option value="medium">Medium</option>
-            <option value="large">Large</option>
+            <option value="S">Small</option>
+            <option value="M">Medium</option>
+            <option value="L">Large</option>
           </select>
         </div>
         {errors.size && <div className='error'>{errors.size}</div>}
